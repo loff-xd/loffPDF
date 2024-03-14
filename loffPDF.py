@@ -1,8 +1,8 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-import tkinter.filedialog
+from tkinter.filedialog import askopenfilenames
 from tkinter import messagebox
-import ntpath
+from ntpath import basename
 from wand.image import Image
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
@@ -10,6 +10,7 @@ from PIL import Image as PILImage
 import pillow_heif
 
 supported_savetypes = [
+    "",
     ".pdf",
     ".jpg",
     ".png"
@@ -44,14 +45,14 @@ class App(tk.Frame):
         self.columnconfigure(3, weight=0)
 
         self.bt_open = ttk.Button(self, text="Open/Add", command=self.open_file)
-        self.bt_open.grid(column=0, row=0)
+        self.bt_open.grid(column=0, row=0, pady=(8,0))
         self.bt_open.bind("<Shift-Button-1>", self.force_open_file)
 
         self.bt_remove = ttk.Button(self, text="Remove", command=self.remove_item)
-        self.bt_remove.grid(column=1, row=0)
+        self.bt_remove.grid(column=1, row=0, pady=(8,0))
 
         self.bt_remove = ttk.Button(self, text="Clear", command=self.clear_all)
-        self.bt_remove.grid(column=2, row=0)
+        self.bt_remove.grid(column=2, row=0, pady=(8,0))
 
         self.lb_file_list = tk.Listbox(self, height=20, selectmode=tk.EXTENDED)
         self.lb_file_list.grid(column=0, row=1, columnspan=3, sticky="ew", padx=8, pady=8)
@@ -63,7 +64,7 @@ class App(tk.Frame):
         self.bt_convert.grid(column=1, row=2)
 
         self.dd_var = tk.StringVar()
-        self.dd_var.set(supported_savetypes[0])
+        self.dd_var.set(supported_savetypes[1])
 
         self.dd_filetypes = ttk.OptionMenu(self, self.dd_var, *supported_savetypes)
         self.dd_filetypes.grid(column=2, row=2)
@@ -82,14 +83,14 @@ class App(tk.Frame):
             types = []
             for type in supported_filetypes:
                 types.append(("", type))
-            self.file_list += tkinter.filedialog.askopenfilenames(filetypes=types)
+            self.file_list += askopenfilenames(filetypes=types)
         else:
-            self.file_list += tkinter.filedialog.askopenfilenames()
+            self.file_list += askopenfilenames()
 
         self.lb_file_list.delete(0,tk.END)
 
         for item in self.file_list:
-            self.lb_file_list.insert(tk.END, ntpath.basename(item))
+            self.lb_file_list.insert(tk.END, basename(item))
 
     def force_open_file(self, *args):
         self.open_file(True)
@@ -165,7 +166,7 @@ class App(tk.Frame):
 
         self.lb_file_list.delete(0, tk.END)
         for item in self.file_list:
-            self.lb_file_list.insert(tk.END, ntpath.basename(item))
+            self.lb_file_list.insert(tk.END, basename(item))
 
 
     def clear_all(self, *args):
